@@ -5,22 +5,15 @@ import dotenv from 'dotenv';
 const { Client } = pkg;
 dotenv.config();
 
-const connectDB = async () => {
-    try {
-        // const client = new Client({
-        //     host: process.env.DB_HOST,
-        //     port: process.env.DB_PORT,
-        //     database: process.env.DB_NAME,
-        //     user: process.env.DB_USER,
-        //     password: process.env.DB_PASSWORD,
-        // })
+const client = new Client({
+  connectionString: process.env.DB_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
+});
 
-        const client = new Client({
-            connectionString: process.env.DB_URL,
-            ssl: {
-              rejectUnauthorized: false
-            }
-          });
+export const connectDB = async () => {
+    try {
         await client.connect();
         console.log('PostgreSQL connected...');
     } catch (err) {
@@ -29,4 +22,4 @@ const connectDB = async () => {
     }
 };
 
-export default connectDB;
+export default client;
