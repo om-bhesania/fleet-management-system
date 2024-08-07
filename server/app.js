@@ -6,6 +6,7 @@ import { connectDB } from './config/database.js';
 import userRouter from './routes/userRoutes.js';
 import swaggerUi from 'swagger-ui-express';
 import swaggerSpecs from './config/swaggerConfig.js';
+import fleetRouter from './routes/fleetRoutes.js';
 
 dotenv.config();
 connectDB();
@@ -20,6 +21,7 @@ app.use(express.json());
 app.use(cookieParser());
 
 app.use("/api/v1", userRouter);
+app.use("/api/v1", fleetRouter);
 // app.use("",authRouter);
 
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpecs));
