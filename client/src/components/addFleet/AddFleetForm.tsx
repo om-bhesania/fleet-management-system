@@ -2,8 +2,12 @@ import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { api } from "../../utils/api/config";
+import useToast from "../../hooks/useToast";
+import { useNavigate } from "react-router-dom";
 
 const AddFleetForm = () => {
+  const { notify } = useToast();
+  const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
       cityName: "",
@@ -71,39 +75,53 @@ const AddFleetForm = () => {
     }),
 
     onSubmit: async (values, { setSubmitting, resetForm }) => {
-      console.log({ values });
-      const formData = new FormData();
-      for (const key in values) {
-        if (values.hasOwnProperty(key)) {
-          if (key.includes("File")) {
-            formData.append(key, values[key]);
-          } else {
-            formData.append(key, values[key]);
-          }
-        }
-      }
-      console.log(`http://localhost:5500/${api.API_URL.fleet.add}`);
-
       try {
         const response = await fetch(
-          `http://localhost:5500/${api.API_URL.fleet.add}`,
+          `http://localhost:5500/${api.API_URL.auth.login}`,
           {
             method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
             body: JSON.stringify(values),
           }
         );
 
         const data = await response.json();
-        console.log("Response Data:", data);
-
-        if (response.ok) {
-          console.log("Fleet added successfully");
-          resetForm(); // Reset the form after successful submission
+        if (response.status === 400) {
+          notify({
+            message: "Invalid credentials. Please try again.",
+            type: "error",
+            position: "top-right",
+            duration: 5000,
+          });
+        } else if (!response.ok) {
+          throw new Error(data.msg || "Something went wrong");
         } else {
-          console.error("Error adding fleet:", data.message || "Unknown error");
+          notify({
+            message: "Successfully logged in",
+            type: "success",
+            position: "top-right",
+            duration: 5000,
+          });
+
+          resetForm();
+
+          setTimeout(() => {
+            navigate("/");
+          }, 900);
+          setTimeout(() => {
+            window.location.reload();
+          }, 900);
         }
-      } catch (error) {
-        console.error("Failed to submit the form:", error);
+      } catch (error: any) {
+        notify({
+          message: error?.msg || "Failed to log in",
+          type: "error",
+          position: "top-right",
+          duration: 5000,
+        });
+        window.isLoggedIn = false;
       } finally {
         setSubmitting(false);
       }
@@ -112,20 +130,26 @@ const AddFleetForm = () => {
 
   return (
     <div className="container">
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 w-full">
         <div className="sm:mx-auto sm:w-full sm:max-w-sm">
           <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
             Add Fleet
           </h2>
         </div>
 
-        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-          <form onSubmit={formik.handleSubmit} className="space-y-6">
-            {/* City Name */}
+        <div className="mt-10">
+          <form
+            onSubmit={formik.handleSubmit}
+            className="space-y-6 flex items-center w-full flex-wrap justify-between"
+          >
+            {/* General Information */}
+            <h3 className="w-full text-lg font-semibold text-gray-900">
+              General Information
+            </h3>
             <div>
               <label
                 htmlFor="cityName"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
               >
                 City Name
               </label>
@@ -136,7 +160,7 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.cityName}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
               {formik.touched.cityName && formik.errors.cityName ? (
                 <div className="mt-2 text-sm text-red-600">
@@ -145,12 +169,10 @@ const AddFleetForm = () => {
               ) : null}
             </div>
 
-            {/* Additional form fields go here... (similar structure for each field) */}
-
             <div>
               <label
                 htmlFor="projectName"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
               >
                 Project Name
               </label>
@@ -161,7 +183,7 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.projectName}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
               {formik.touched.projectName && formik.errors.projectName ? (
                 <div className="mt-2 text-sm text-red-600">
@@ -170,11 +192,14 @@ const AddFleetForm = () => {
               ) : null}
             </div>
 
-            {/* Vehicle Type */}
+            {/* Vehicle Information */}
+            <h3 className="w-full text-lg font-semibold text-gray-900">
+              Vehicle Information
+            </h3>
             <div>
               <label
                 htmlFor="vehicleType"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
               >
                 Vehicle Type
               </label>
@@ -185,7 +210,7 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.vehicleType}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
               {formik.touched.vehicleType && formik.errors.vehicleType ? (
                 <div className="mt-2 text-sm text-red-600">
@@ -194,12 +219,10 @@ const AddFleetForm = () => {
               ) : null}
             </div>
 
-            {/* Additional fields with validation... */}
-            {/* Vehicle Number */}
             <div>
               <label
                 htmlFor="vehicleNumber"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
               >
                 Vehicle Number
               </label>
@@ -210,7 +233,7 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.vehicleNumber}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
               {formik.touched.vehicleNumber && formik.errors.vehicleNumber ? (
                 <div className="mt-2 text-sm text-red-600">
@@ -219,11 +242,10 @@ const AddFleetForm = () => {
               ) : null}
             </div>
 
-            {/* isCorporationVehicle */}
             <div>
               <label
                 htmlFor="isCorporationVehicle"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
               >
                 Is Corporation Vehicle
               </label>
@@ -244,11 +266,10 @@ const AddFleetForm = () => {
               ) : null}
             </div>
 
-            {/* Chassis Number */}
             <div>
               <label
                 htmlFor="chassisNumber"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
               >
                 Chassis Number
               </label>
@@ -259,7 +280,7 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.chassisNumber}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
               {formik.touched.chassisNumber && formik.errors.chassisNumber ? (
                 <div className="mt-2 text-sm text-red-600">
@@ -268,12 +289,10 @@ const AddFleetForm = () => {
               ) : null}
             </div>
 
-            {/* Additional fields for engineNumber, rcBookNumber, and files */}
-            {/* Engine Number */}
             <div>
               <label
                 htmlFor="engineNumber"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
               >
                 Engine Number
               </label>
@@ -284,7 +303,7 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.engineNumber}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
               {formik.touched.engineNumber && formik.errors.engineNumber ? (
                 <div className="mt-2 text-sm text-red-600">
@@ -293,11 +312,10 @@ const AddFleetForm = () => {
               ) : null}
             </div>
 
-            {/* RC Book Number */}
             <div>
               <label
                 htmlFor="rcBookNumber"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
               >
                 RC Book Number
               </label>
@@ -308,7 +326,7 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.rcBookNumber}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
               {formik.touched.rcBookNumber && formik.errors.rcBookNumber ? (
                 <div className="mt-2 text-sm text-red-600">
@@ -317,11 +335,10 @@ const AddFleetForm = () => {
               ) : null}
             </div>
 
-            {/* RC File Upload */}
             <div>
               <label
                 htmlFor="rcFile"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
               >
                 RC File
               </label>
@@ -333,7 +350,7 @@ const AddFleetForm = () => {
                   formik.setFieldValue("rcFile", event.currentTarget.files[0])
                 }
                 onBlur={formik.handleBlur}
-                className="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100"
+                className="block w-[300px] text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100"
               />
               {formik.touched.rcFile && formik.errors.rcFile ? (
                 <div className="mt-2 text-sm text-red-600">
@@ -342,116 +359,64 @@ const AddFleetForm = () => {
               ) : null}
             </div>
 
-            {/* More fields... */}
-
-            {/* Area Name */}
             <div>
               <label
-                htmlFor="areaName"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                htmlFor="insuranceExpiryDate"
+                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
               >
-                Area Name
+                Insurance Expiry Date
               </label>
               <input
-                id="areaName"
-                name="areaName"
-                type="text"
+                id="insuranceExpiryDate"
+                name="insuranceExpiryDate"
+                type="date"
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                value={formik.values.areaName}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                value={formik.values.insuranceExpiryDate}
+                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
-              {formik.touched.areaName && formik.errors.areaName ? (
+              {formik.touched.insuranceExpiryDate &&
+              formik.errors.insuranceExpiryDate ? (
                 <div className="mt-2 text-sm text-red-600">
-                  {formik.errors.areaName}
+                  {formik.errors.insuranceExpiryDate}
                 </div>
               ) : null}
             </div>
 
-            {/* Driver Name */}
             <div>
               <label
-                htmlFor="driverName"
-                className="block text-sm font-medium leading-6 text-gray-900"
+                htmlFor="insuranceFile"
+                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
               >
-                Driver Name
+                Insurance File
               </label>
               <input
-                id="driverName"
-                name="driverName"
-                type="text"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.driverName}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              />
-              {formik.touched.driverName && formik.errors.driverName ? (
-                <div className="mt-2 text-sm text-red-600">
-                  {formik.errors.driverName}
-                </div>
-              ) : null}
-            </div>
-
-            {/* Driver License Number */}
-            <div>
-              <label
-                htmlFor="driverLicenseNumber"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Driver License Number
-              </label>
-              <input
-                id="driverLicenseNumber"
-                name="driverLicenseNumber"
-                type="text"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                value={formik.values.driverLicenseNumber}
-                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-              />
-              {formik.touched.driverLicenseNumber &&
-              formik.errors.driverLicenseNumber ? (
-                <div className="mt-2 text-sm text-red-600">
-                  {formik.errors.driverLicenseNumber}
-                </div>
-              ) : null}
-            </div>
-
-            {/* Driver License File Upload */}
-            <div>
-              <label
-                htmlFor="driverLicenseFile"
-                className="block text-sm font-medium leading-6 text-gray-900"
-              >
-                Driver License File
-              </label>
-              <input
-                id="driverLicenseFile"
-                name="driverLicenseFile"
+                id="insuranceFile"
+                name="insuranceFile"
                 type="file"
                 onChange={(event: any) =>
                   formik.setFieldValue(
-                    "driverLicenseFile",
+                    "insuranceFile",
                     event.currentTarget.files[0]
                   )
                 }
                 onBlur={formik.handleBlur}
-                className="block w-full text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100"
+                className="block w-[300px] text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100"
               />
-              {formik.touched.driverLicenseFile &&
-              formik.errors.driverLicenseFile ? (
+              {formik.touched.insuranceFile && formik.errors.insuranceFile ? (
                 <div className="mt-2 text-sm text-red-600">
-                  {formik.errors.driverLicenseFile}
+                  {formik.errors.insuranceFile}
                 </div>
               ) : null}
             </div>
-            <div>
+
+            {/* Submit Button */}
+            <div className="flex justify-center w-full">
               <button
                 type="submit"
-                disabled={formik.isSubmitting}
-                className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+                className="mt-6 w-[300px] rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
               >
-                {formik.isSubmitting ? "Submitting..." : "Add Fleet"}
+                Submit
               </button>
             </div>
           </form>
