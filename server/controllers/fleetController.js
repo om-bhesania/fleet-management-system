@@ -22,6 +22,9 @@ import client from "../config/database.js";
  *               vehicleType:
  *                 type: string
  *                 example: 'Truck'
+ *               vehicleNumber:
+ *                 type: string
+ *                 example: 'GJ01FJ9056'
  *               isCorporationVehicle:
  *                 type: boolean
  *                 example: true
@@ -131,6 +134,7 @@ export const addFleet = async (req, res) => {
             cityName,
             projectName,
             vehicleType,
+            vehicleNumber,
             isCorporationVehicle,
             chassisNumber,
             engineNumber,
@@ -158,6 +162,7 @@ export const addFleet = async (req, res) => {
                 cityName, 
                 projectName, 
                 vehicleType, 
+                vehicleNumber,
                 isCorporationVehicle, 
                 chassisNumber, 
                 engineNumber, 
@@ -179,14 +184,15 @@ export const addFleet = async (req, res) => {
                 driverLicenseNumber, 
                 driverLicenseFile
             ) VALUES (
-                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24
+                $1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20, $21, $22, $23, $24, $25
             )
         `;
 
         await client.query(query,[
             cityName, 
             projectName, 
-            vehicleType, 
+            vehicleType,
+            vehicleNumber, 
             isCorporationVehicle, 
             chassisNumber, 
             engineNumber, 
@@ -258,6 +264,9 @@ export const addFleet = async (req, res) => {
  *                       vehicleType:
  *                         type: string
  *                         example: 'Truck'
+ *                       vehicleNumber:
+ *                         type: string
+ *                         example: 'GJ01FJ2805'
  *                       isCorporationVehicle:
  *                         type: boolean
  *                         example: true
@@ -385,6 +394,9 @@ export const getAllFleet = async (req, res) => {
  *                     vehicleType:
  *                       type: string
  *                       example: 'Truck'
+ *                     vehicleNumber:
+ *                       type: string
+ *                       example: 'GJ01FJ2805'
  *                     isCorporationVehicle:
  *                       type: boolean
  *                       example: true
@@ -525,6 +537,9 @@ export const getFleetById = async (req, res) => {
  *               vehicleType:
  *                 type: string
  *                 example: 'Truck'
+ *               vehicleNumber:
+ *                 type: string
+ *                 example: 'GJ01FJ2805'
  *               isCorporationVehicle:
  *                 type: boolean
  *                 example: true
@@ -642,6 +657,7 @@ export const updateFleetById = async (req, res) => {
         cityName,
         projectName,
         vehicleType,
+        vehicleNumber,
         isCorporationVehicle,
         chassisNumber,
         engineNumber,
@@ -670,33 +686,35 @@ export const updateFleetById = async (req, res) => {
                 cityName = $1,
                 projectName = $2,
                 vehicleType = $3,
-                isCorporationVehicle = $4,
-                chassisNumber = $5,
-                engineNumber = $6,
-                rcBookNumber = $7,
-                rcFile = $8,
-                insurancePolicyNumber = $9,
-                insuranceRenewalDate = $10,
-                insuranceExpiryDate = $11,
-                insuranceFile = $12,
-                pucNumber = $13,
-                pucRenewalDate = $14,
-                pucExpiryDate = $15,
-                pucFile = $16,
-                fitnessRenewalDate = $17,
-                fitnessExpiryDate = $18,
-                fitnessFile = $19,
-                areaName = $20,
-                driverName = $21,
-                driverLicenseNumber = $22,
-                driverLicenseFile = $23
-            WHERE vehicleId = $24
+                vehicleNumber = $4
+                isCorporationVehicle = $5,
+                chassisNumber = $6,
+                engineNumber = $7,
+                rcBookNumber = $8,
+                rcFile = $9,
+                insurancePolicyNumber = $10,
+                insuranceRenewalDate = $11,
+                insuranceExpiryDate = $12,
+                insuranceFile = $13,
+                pucNumber = $14,
+                pucRenewalDate = $15,
+                pucExpiryDate = $16,
+                pucFile = $17,
+                fitnessRenewalDate = $18,
+                fitnessExpiryDate = $19,
+                fitnessFile = $20,
+                areaName = $21,
+                driverName = $22,
+                driverLicenseNumber = $23,
+                driverLicenseFile = $24
+                WHERE vehicleId = $25
         `;
 
         const result = await client.query(query, [
             cityName,
             projectName,
             vehicleType,
+            vehicleNumber,
             isCorporationVehicle,
             chassisNumber,
             engineNumber,
