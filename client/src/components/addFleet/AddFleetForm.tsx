@@ -2,6 +2,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { api } from "../../utils/api/config";
 import useToast from "../../hooks/useToast";
+import { ToastContainer } from "react-toastify";
 
 const validationSchema = Yup.object({
   cityName: Yup.string().required("City is required"),
@@ -60,23 +61,37 @@ export const AddFleetForm = () => {
       console.log({ values });
 
       try {
-        const response = await fetch(`http://localhost:5500/api/v1/addfleet`, {
-          method: "POST",
-          body: JSON.stringify(values),
-        });
+        const response = await fetch(
+          `http://localhost:5500/${api.API_URL.fleet.add}`,
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(values),
+          }
+        );
 
         const data = await response.json();
-        console.log("Response Data:", data);
 
         if (response.ok) {
-          console.log("Fleet added successfully");
+          notify({
+            message: data.msg,
+            type: "success",
+          });
           resetForm();
         } else {
-          console.error("Error adding fleet:", data.message || "Unknown error");
- 
+          notify({
+            message: data.message || "Error adding fleet",
+            type: "error",
+          });
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Failed to submit the form:", error);
+        notify({
+          message: error.message,
+          type: "error",
+        });
       } finally {
         setSubmitting(false);
       }
@@ -86,6 +101,7 @@ export const AddFleetForm = () => {
   return (
     <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-2xl font-semibold mb-6">Add Fleet</h1>
+      <ToastContainer />
       <form onSubmit={formik.handleSubmit} className="space-y-6">
         <div className="border-b border-gray-300 pb-4">
           <h2 className="text-xl font-medium mb-4">Vehicle Information</h2>

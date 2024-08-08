@@ -3,12 +3,13 @@ import Home from "./pages/home/Home";
 import Login from "./pages/login/Login";
 import ProtectedRoute from "./components/auth/protected/ProtectedRoute";
 import Header from "./components/header/Header";
+import { ToastContainer } from "react-toastify";
 
 function App() {
   return (
     <BrowserRouter>
       <Header />
-
+      <ToastContainer />
       <Routes>
         <Route
           path="/"
