@@ -8,16 +8,20 @@ dotenv.config();
 // const numCPUs = os.cpus().length;
 const PORT = process.env.PORT || 5000;
 
-if(cluster.isPrimary){
-    for(let i=0;i<2;i++){
-        cluster.fork();
-    }
-    cluster.on('exit', (worker, code, signal) => {
-        console.log(`Worker ${worker.process.pid} died with code: ${code}, and signal: ${signal}`);
-        cluster.fork();
-    });
-} else {
-    app.listen(PORT, () => {
-        console.log(`Server running on port ${PORT} (Worker ${process.pid})`);
-    }); 
-}
+// if(cluster.isPrimary){
+//     for(let i=0;i<2;i++){
+//         cluster.fork();
+//     }
+//     // cluster.on('exit', (worker, code, signal) => {
+//     //     console.log(`Worker ${worker.process.pid} died with code: ${code}, and signal: ${signal}`);
+//     //     cluster.fork();
+//     // });
+// } else {
+//     app.listen(PORT, () => {
+//         console.log(`Server running on port ${PORT} (Worker ${process.pid})`);
+//     }); 
+// }
+
+app.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
+        }); 
