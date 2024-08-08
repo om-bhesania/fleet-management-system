@@ -1,5 +1,6 @@
-import AddFleetForm from "../../components/addFleet/AddFleetForm";
+import { AddFleetForm } from "../../components/addFleet/AddFleetForm";
 
+ 
 const Home = () => {
     return (
         <div className="container">

@@ -1,13 +1,38 @@
-import React from "react";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { api } from "../../utils/api/config";
 import useToast from "../../hooks/useToast";
-import { useNavigate } from "react-router-dom";
 
-const AddFleetForm = () => {
+const validationSchema = Yup.object({
+  cityName: Yup.string().required("City is required"),
+  projectName: Yup.string().required("Project Name is required"),
+  vehicleType: Yup.string().required("Vehicle Type is required"),
+  vehicleNumber: Yup.string().required("Vehicle Number is required"),
+  isCorporationVehicle: Yup.boolean(),
+  chassisNumber: Yup.string().required("Chassis Number is required"),
+  engineNumber: Yup.string().required("Engine Number is required"),
+  rcBookNumber: Yup.string().required("RC Book Number is required"),
+  insurancePolicyNumber: Yup.string().required(
+    "Insurance Policy Number is required"
+  ),
+  insuranceRenewalDate: Yup.date().required(
+    "Insurance Renewal Date is required"
+  ),
+  insuranceExpiryDate: Yup.date().required("Insurance Expiry Date is required"),
+  pucNumber: Yup.string().required("PUC Number is required"),
+  pucRenewalDate: Yup.date().required("PUC Renewal Date is required"),
+  pucExpiryDate: Yup.date().required("PUC Expiry Date is required"),
+  fitnessRenewalDate: Yup.date().required("Fitness Renewal Date is required"),
+  fitnessExpiryDate: Yup.date().required("Fitness Expiry Date is required"),
+  areaName: Yup.string().required("Area Name is required"),
+  driverName: Yup.string().required("Driver Name is required"),
+  driverLicenseNumber: Yup.string().required(
+    "Driver License Number is required"
+  ),
+});
+
+export const AddFleetForm = () => {
   const { notify } = useToast();
-  const navigate = useNavigate();
   const formik = useFormik({
     initialValues: {
       cityName: "",
@@ -18,110 +43,40 @@ const AddFleetForm = () => {
       chassisNumber: "",
       engineNumber: "",
       rcBookNumber: "",
-      rcFile: null,
       insurancePolicyNumber: "",
       insuranceRenewalDate: "",
       insuranceExpiryDate: "",
-      insuranceFile: null,
       pucNumber: "",
       pucRenewalDate: "",
       pucExpiryDate: "",
-      pucFile: null,
       fitnessRenewalDate: "",
       fitnessExpiryDate: "",
-      fitnessFile: null,
       areaName: "",
       driverName: "",
       driverLicenseNumber: "",
-      driverLicenseFile: null,
     },
-    validationSchema: Yup.object({
-      cityName: Yup.string().required("City Name is required"),
-      projectName: Yup.string().required("Project Name is required"),
-      vehicleType: Yup.string().required("Vehicle Type is required"),
-      vehicleNumber: Yup.string().required("Vehicle Number is required"),
-      isCorporationVehicle: Yup.boolean(),
-      chassisNumber: Yup.string().required("Chassis Number is required"),
-      engineNumber: Yup.string().required("Engine Number is required"),
-      rcBookNumber: Yup.string().required("RC Book Number is required"),
-      rcFile: Yup.mixed().required("RC File is required"),
-      insurancePolicyNumber: Yup.string().required(
-        "Insurance Policy Number is required"
-      ),
-      insuranceRenewalDate: Yup.date().required(
-        "Insurance Renewal Date is required"
-      ),
-      insuranceExpiryDate: Yup.date().required(
-        "Insurance Expiry Date is required"
-      ),
-      insuranceFile: Yup.mixed().required("Insurance File is required"),
-      pucNumber: Yup.string().required("PUC Number is required"),
-      pucRenewalDate: Yup.date().required("PUC Renewal Date is required"),
-      pucExpiryDate: Yup.date().required("PUC Expiry Date is required"),
-      pucFile: Yup.mixed().required("PUC File is required"),
-      fitnessRenewalDate: Yup.date().required(
-        "Fitness Renewal Date is required"
-      ),
-      fitnessExpiryDate: Yup.date().required("Fitness Expiry Date is required"),
-      fitnessFile: Yup.mixed().required("Fitness File is required"),
-      areaName: Yup.string().required("Area Name is required"),
-      driverName: Yup.string().required("Driver Name is required"),
-      driverLicenseNumber: Yup.string().required(
-        "Driver License Number is required"
-      ),
-      driverLicenseFile: Yup.mixed().required(
-        "Driver License File is required"
-      ),
-    }),
-
+    validationSchema,
     onSubmit: async (values, { setSubmitting, resetForm }) => {
+      console.log({ values });
+
       try {
-        const response = await fetch(
-          `http://localhost:5500/${api.API_URL.auth.login}`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(values),
-          }
-        );
+        const response = await fetch(`http://localhost:5500/api/v1/addfleet`, {
+          method: "POST",
+          body: JSON.stringify(values),
+        });
 
         const data = await response.json();
-        if (response.status === 400) {
-          notify({
-            message: "Invalid credentials. Please try again.",
-            type: "error",
-            position: "top-right",
-            duration: 5000,
-          });
-        } else if (!response.ok) {
-          throw new Error(data.msg || "Something went wrong");
-        } else {
-          notify({
-            message: "Successfully logged in",
-            type: "success",
-            position: "top-right",
-            duration: 5000,
-          });
+        console.log("Response Data:", data);
 
+        if (response.ok) {
+          console.log("Fleet added successfully");
           resetForm();
-
-          setTimeout(() => {
-            navigate("/");
-          }, 900);
-          setTimeout(() => {
-            window.location.reload();
-          }, 900);
+        } else {
+          console.error("Error adding fleet:", data.message || "Unknown error");
+ 
         }
-      } catch (error: any) {
-        notify({
-          message: error?.msg || "Failed to log in",
-          type: "error",
-          position: "top-right",
-          duration: 5000,
-        });
-        window.isLoggedIn = false;
+      } catch (error) {
+        console.error("Failed to submit the form:", error);
       } finally {
         setSubmitting(false);
       }
@@ -129,29 +84,18 @@ const AddFleetForm = () => {
   });
 
   return (
-    <div className="container">
-      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8 w-full">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm">
-          <h2 className="mt-10 text-center text-2xl font-bold leading-9 tracking-tight text-gray-900">
-            Add Fleet
-          </h2>
-        </div>
-
-        <div className="mt-10">
-          <form
-            onSubmit={formik.handleSubmit}
-            className="space-y-6 flex items-center w-full flex-wrap justify-between"
-          >
-            {/* General Information */}
-            <h3 className="w-full text-lg font-semibold text-gray-900">
-              General Information
-            </h3>
+    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+      <h1 className="text-2xl font-semibold mb-6">Add Fleet</h1>
+      <form onSubmit={formik.handleSubmit} className="space-y-6">
+        <div className="border-b border-gray-300 pb-4">
+          <h2 className="text-xl font-medium mb-4">Vehicle Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label
                 htmlFor="cityName"
-                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
+                className="block text-sm font-medium text-gray-700"
               >
-                City Name
+                City
               </label>
               <input
                 id="cityName"
@@ -160,19 +104,20 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.cityName}
-                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.cityName && formik.errors.cityName
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
               {formik.touched.cityName && formik.errors.cityName ? (
-                <div className="mt-2 text-sm text-red-600">
-                  {formik.errors.cityName}
-                </div>
+                <p className="text-red-500 text-sm">{formik.errors.cityName}</p>
               ) : null}
             </div>
-
             <div>
               <label
                 htmlFor="projectName"
-                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
+                className="block text-sm font-medium text-gray-700"
               >
                 Project Name
               </label>
@@ -183,23 +128,22 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.projectName}
-                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.projectName && formik.errors.projectName
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
               {formik.touched.projectName && formik.errors.projectName ? (
-                <div className="mt-2 text-sm text-red-600">
+                <p className="text-red-500 text-sm">
                   {formik.errors.projectName}
-                </div>
+                </p>
               ) : null}
             </div>
-
-            {/* Vehicle Information */}
-            <h3 className="w-full text-lg font-semibold text-gray-900">
-              Vehicle Information
-            </h3>
             <div>
               <label
                 htmlFor="vehicleType"
-                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
+                className="block text-sm font-medium text-gray-700"
               >
                 Vehicle Type
               </label>
@@ -210,19 +154,22 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.vehicleType}
-                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.vehicleType && formik.errors.vehicleType
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
               {formik.touched.vehicleType && formik.errors.vehicleType ? (
-                <div className="mt-2 text-sm text-red-600">
+                <p className="text-red-500 text-sm">
                   {formik.errors.vehicleType}
-                </div>
+                </p>
               ) : null}
             </div>
-
             <div>
               <label
                 htmlFor="vehicleNumber"
-                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
+                className="block text-sm font-medium text-gray-700"
               >
                 Vehicle Number
               </label>
@@ -233,43 +180,39 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.vehicleNumber}
-                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.vehicleNumber && formik.errors.vehicleNumber
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
               {formik.touched.vehicleNumber && formik.errors.vehicleNumber ? (
-                <div className="mt-2 text-sm text-red-600">
+                <p className="text-red-500 text-sm">
                   {formik.errors.vehicleNumber}
-                </div>
+                </p>
               ) : null}
             </div>
-
             <div>
               <label
                 htmlFor="isCorporationVehicle"
-                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
+                className="flex items-center text-sm font-medium text-gray-700"
               >
-                Is Corporation Vehicle
+                <input
+                  id="isCorporationVehicle"
+                  name="isCorporationVehicle"
+                  type="checkbox"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  checked={formik.values.isCorporationVehicle}
+                  className="mr-2"
+                />
+                Corporation Vehicle
               </label>
-              <input
-                id="isCorporationVehicle"
-                name="isCorporationVehicle"
-                type="checkbox"
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-                checked={formik.values.isCorporationVehicle}
-                className="h-4 w-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
-              />
-              {formik.touched.isCorporationVehicle &&
-              formik.errors.isCorporationVehicle ? (
-                <div className="mt-2 text-sm text-red-600">
-                  {formik.errors.isCorporationVehicle}
-                </div>
-              ) : null}
             </div>
-
             <div>
               <label
                 htmlFor="chassisNumber"
-                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
+                className="block text-sm font-medium text-gray-700"
               >
                 Chassis Number
               </label>
@@ -280,19 +223,22 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.chassisNumber}
-                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.chassisNumber && formik.errors.chassisNumber
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
               {formik.touched.chassisNumber && formik.errors.chassisNumber ? (
-                <div className="mt-2 text-sm text-red-600">
+                <p className="text-red-500 text-sm">
                   {formik.errors.chassisNumber}
-                </div>
+                </p>
               ) : null}
             </div>
-
             <div>
               <label
                 htmlFor="engineNumber"
-                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
+                className="block text-sm font-medium text-gray-700"
               >
                 Engine Number
               </label>
@@ -303,19 +249,22 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.engineNumber}
-                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.engineNumber && formik.errors.engineNumber
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
               {formik.touched.engineNumber && formik.errors.engineNumber ? (
-                <div className="mt-2 text-sm text-red-600">
+                <p className="text-red-500 text-sm">
                   {formik.errors.engineNumber}
-                </div>
+                </p>
               ) : null}
             </div>
-
             <div>
               <label
                 htmlFor="rcBookNumber"
-                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
+                className="block text-sm font-medium text-gray-700"
               >
                 RC Book Number
               </label>
@@ -326,43 +275,85 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.rcBookNumber}
-                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.rcBookNumber && formik.errors.rcBookNumber
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
               {formik.touched.rcBookNumber && formik.errors.rcBookNumber ? (
-                <div className="mt-2 text-sm text-red-600">
+                <p className="text-red-500 text-sm">
                   {formik.errors.rcBookNumber}
-                </div>
+                </p>
               ) : null}
             </div>
+          </div>
+        </div>
 
+        {/* Insurance Details */}
+        <div className="border-b border-gray-300 pb-4">
+          <h2 className="text-xl font-medium mb-4">Insurance Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label
-                htmlFor="rcFile"
-                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
+                htmlFor="insurancePolicyNumber"
+                className="block text-sm font-medium text-gray-700"
               >
-                RC File
+                Insurance Policy Number
               </label>
               <input
-                id="rcFile"
-                name="rcFile"
-                type="file"
-                onChange={(event: any) =>
-                  formik.setFieldValue("rcFile", event.currentTarget.files[0])
-                }
+                id="insurancePolicyNumber"
+                name="insurancePolicyNumber"
+                type="text"
+                onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="block w-[300px] text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100"
+                value={formik.values.insurancePolicyNumber}
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.insurancePolicyNumber &&
+                  formik.errors.insurancePolicyNumber
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
-              {formik.touched.rcFile && formik.errors.rcFile ? (
-                <div className="mt-2 text-sm text-red-600">
-                  {formik.errors.rcFile}
-                </div>
+              {formik.touched.insurancePolicyNumber &&
+              formik.errors.insurancePolicyNumber ? (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.insurancePolicyNumber}
+                </p>
               ) : null}
             </div>
-
+            <div>
+              <label
+                htmlFor="insuranceRenewalDate"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Insurance Renewal Date
+              </label>
+              <input
+                id="insuranceRenewalDate"
+                name="insuranceRenewalDate"
+                type="date"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.insuranceRenewalDate}
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.insuranceRenewalDate &&
+                  formik.errors.insuranceRenewalDate
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+              />
+              {formik.touched.insuranceRenewalDate &&
+              formik.errors.insuranceRenewalDate ? (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.insuranceRenewalDate}
+                </p>
+              ) : null}
+            </div>
             <div>
               <label
                 htmlFor="insuranceExpiryDate"
-                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
+                className="block text-sm font-medium text-gray-700"
               >
                 Insurance Expiry Date
               </label>
@@ -373,57 +364,265 @@ const AddFleetForm = () => {
                 onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
                 value={formik.values.insuranceExpiryDate}
-                className="block w-[300px] rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.insuranceExpiryDate &&
+                  formik.errors.insuranceExpiryDate
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
               {formik.touched.insuranceExpiryDate &&
               formik.errors.insuranceExpiryDate ? (
-                <div className="mt-2 text-sm text-red-600">
+                <p className="text-red-500 text-sm">
                   {formik.errors.insuranceExpiryDate}
-                </div>
+                </p>
               ) : null}
             </div>
+          </div>
+        </div>
 
+        {/* PUC Details */}
+        <div className="border-b border-gray-300 pb-4">
+          <h2 className="text-xl font-medium mb-4">PUC Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label
-                htmlFor="insuranceFile"
-                className="block w-[300px] text-sm font-medium leading-6 text-gray-900"
+                htmlFor="pucNumber"
+                className="block text-sm font-medium text-gray-700"
               >
-                Insurance File
+                PUC Number
               </label>
               <input
-                id="insuranceFile"
-                name="insuranceFile"
-                type="file"
-                onChange={(event: any) =>
-                  formik.setFieldValue(
-                    "insuranceFile",
-                    event.currentTarget.files[0]
-                  )
-                }
+                id="pucNumber"
+                name="pucNumber"
+                type="text"
+                onChange={formik.handleChange}
                 onBlur={formik.handleBlur}
-                className="block w-[300px] text-sm text-gray-900 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-600 hover:file:bg-indigo-100"
+                value={formik.values.pucNumber}
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.pucNumber && formik.errors.pucNumber
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
-              {formik.touched.insuranceFile && formik.errors.insuranceFile ? (
-                <div className="mt-2 text-sm text-red-600">
-                  {formik.errors.insuranceFile}
-                </div>
+              {formik.touched.pucNumber && formik.errors.pucNumber ? (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.pucNumber}
+                </p>
               ) : null}
             </div>
-
-            {/* Submit Button */}
-            <div className="flex justify-center w-full">
-              <button
-                type="submit"
-                className="mt-6 w-[300px] rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+            <div>
+              <label
+                htmlFor="pucRenewalDate"
+                className="block text-sm font-medium text-gray-700"
               >
-                Submit
-              </button>
+                PUC Renewal Date
+              </label>
+              <input
+                id="pucRenewalDate"
+                name="pucRenewalDate"
+                type="date"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.pucRenewalDate}
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.pucRenewalDate && formik.errors.pucRenewalDate
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+              />
+              {formik.touched.pucRenewalDate && formik.errors.pucRenewalDate ? (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.pucRenewalDate}
+                </p>
+              ) : null}
             </div>
-          </form>
+            <div>
+              <label
+                htmlFor="pucExpiryDate"
+                className="block text-sm font-medium text-gray-700"
+              >
+                PUC Expiry Date
+              </label>
+              <input
+                id="pucExpiryDate"
+                name="pucExpiryDate"
+                type="date"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.pucExpiryDate}
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.pucExpiryDate && formik.errors.pucExpiryDate
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+              />
+              {formik.touched.pucExpiryDate && formik.errors.pucExpiryDate ? (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.pucExpiryDate}
+                </p>
+              ) : null}
+            </div>
+          </div>
         </div>
-      </div>
+
+        {/* Fitness Details */}
+        <div className="border-b border-gray-300 pb-4">
+          <h2 className="text-xl font-medium mb-4">Fitness Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                htmlFor="fitnessRenewalDate"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Fitness Renewal Date
+              </label>
+              <input
+                id="fitnessRenewalDate"
+                name="fitnessRenewalDate"
+                type="date"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.fitnessRenewalDate}
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.fitnessRenewalDate &&
+                  formik.errors.fitnessRenewalDate
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+              />
+              {formik.touched.fitnessRenewalDate &&
+              formik.errors.fitnessRenewalDate ? (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.fitnessRenewalDate}
+                </p>
+              ) : null}
+            </div>
+            <div>
+              <label
+                htmlFor="fitnessExpiryDate"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Fitness Expiry Date
+              </label>
+              <input
+                id="fitnessExpiryDate"
+                name="fitnessExpiryDate"
+                type="date"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.fitnessExpiryDate}
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.fitnessExpiryDate &&
+                  formik.errors.fitnessExpiryDate
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+              />
+              {formik.touched.fitnessExpiryDate &&
+              formik.errors.fitnessExpiryDate ? (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.fitnessExpiryDate}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        {/* Owner Details */}
+        <div className="border-b border-gray-300 pb-4">
+          <h2 className="text-xl font-medium mb-4">Owner Details</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label
+                htmlFor="areaName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Area Name
+              </label>
+              <input
+                id="areaName"
+                name="areaName"
+                type="text"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.areaName}
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.areaName && formik.errors.areaName
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+              />
+              {formik.touched.areaName && formik.errors.areaName ? (
+                <p className="text-red-500 text-sm">{formik.errors.areaName}</p>
+              ) : null}
+            </div>
+            <div>
+              <label
+                htmlFor="driverName"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Driver Name
+              </label>
+              <input
+                id="driverName"
+                name="driverName"
+                type="text"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.driverName}
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.driverName && formik.errors.driverName
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+              />
+              {formik.touched.driverName && formik.errors.driverName ? (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.driverName}
+                </p>
+              ) : null}
+            </div>
+            <div>
+              <label
+                htmlFor="driverLicenseNumber"
+                className="block text-sm font-medium text-gray-700"
+              >
+                Driver License Number
+              </label>
+              <input
+                id="driverLicenseNumber"
+                name="driverLicenseNumber"
+                type="text"
+                onChange={formik.handleChange}
+                onBlur={formik.handleBlur}
+                value={formik.values.driverLicenseNumber}
+                className={`mt-1 block w-full p-2 border rounded-md shadow-sm ${
+                  formik.touched.driverLicenseNumber &&
+                  formik.errors.driverLicenseNumber
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
+              />
+              {formik.touched.driverLicenseNumber &&
+              formik.errors.driverLicenseNumber ? (
+                <p className="text-red-500 text-sm">
+                  {formik.errors.driverLicenseNumber}
+                </p>
+              ) : null}
+            </div>
+          </div>
+        </div>
+
+        <div className="flex justify-end">
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md shadow-sm hover:bg-blue-600"
+          >
+            Submit
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
-
-export default AddFleetForm;
