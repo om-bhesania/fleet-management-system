@@ -15,7 +15,7 @@ const swaggerOptions = {
       },
     ],
   },
-  apis: ['./routes/*.js', './controllers/*.js'], // Paths to files containing Swagger annotations
+  apis: ['./routes/*.js', './controllers/*.js'],
 };
 
 const swaggerSpecs = swaggerJsdoc(swaggerOptions);

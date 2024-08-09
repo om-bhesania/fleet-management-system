@@ -71,10 +71,8 @@ export const AddFleetForm = () => {
             body: JSON.stringify(values),
           }
         );
-
         const data = await response.json();
-
-        if (response.ok) {
+        if (data.success) {
           notify({
             message: data.msg,
             type: "success",
@@ -86,6 +84,7 @@ export const AddFleetForm = () => {
             type: "error",
           });
         }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         console.error("Failed to submit the form:", error);
         notify({

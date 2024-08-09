@@ -1,6 +1,6 @@
 import dotenv from 'dotenv';
-import cluster from "node:cluster";
-import os from "node:os";
+// import cluster from "node:cluster";
+// import os from "node:os";
 import app from './app.js';
 
 dotenv.config();
