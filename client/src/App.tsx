@@ -4,6 +4,7 @@ import Login from "./pages/login/Login";
 import ProtectedRoute from "./components/auth/protected/ProtectedRoute";
 import { ToastContainer } from "react-toastify";
 import Sidebar from "./components/sidebar/Sidebar";
+import Test from "./components/dataTable/Test";
 
 function App() {
   return (
@@ -18,6 +19,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <Home />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/test"
+              element={
+                <ProtectedRoute>
+                  <Test />
                 </ProtectedRoute>
               }
             />

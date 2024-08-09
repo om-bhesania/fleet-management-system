@@ -1,5 +1,6 @@
 import { Home, Info, Logout } from "@mui/icons-material";
 import Cookies from "js-cookie";
+import { Link } from "react-router-dom";
 
 const Sidebar = () => {
   return (
@@ -23,13 +24,13 @@ const Sidebar = () => {
             <Home />
             <span>Home</span>
           </a>
-          <a
-            href="#"
+          <Link
+            to="/test"
             className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded"
           >
             <Info />
-            <span>About</span>
-          </a>
+            <span>Table</span>
+          </Link>
         </div>
       </div>
       <div className="p-4">
