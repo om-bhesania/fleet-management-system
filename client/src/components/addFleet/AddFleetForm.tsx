@@ -98,7 +98,7 @@ export const AddFleetForm = () => {
   });
 
   return (
-    <div className="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
+    <div className=" mx-auto p-6 bg-white rounded-lg shadow-md">
       <h1 className="text-2xl font-semibold mb-6">Add Fleet</h1>
       <ToastContainer />
       <form onSubmit={formik.handleSubmit} className="space-y-6">
@@ -209,23 +209,6 @@ export const AddFleetForm = () => {
             </div>
             <div>
               <label
-                htmlFor="isCorporationVehicle"
-                className="flex items-center text-sm font-medium text-gray-700"
-              >
-                <input
-                  id="isCorporationVehicle"
-                  name="isCorporationVehicle"
-                  type="checkbox"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  checked={formik.values.isCorporationVehicle}
-                  className="mr-2"
-                />
-                Corporation Vehicle
-              </label>
-            </div>
-            <div>
-              <label
                 htmlFor="chassisNumber"
                 className="block text-sm font-medium text-gray-700"
               >
@@ -301,6 +284,24 @@ export const AddFleetForm = () => {
                   {formik.errors.rcBookNumber}
                 </p>
               ) : null}
+            </div>
+
+            <div className="flex items-center">
+              <label
+                htmlFor="isCorporationVehicle"
+                className="flex items-center text-sm font-medium text-gray-700"
+              >
+                <input
+                  id="isCorporationVehicle"
+                  name="isCorporationVehicle"
+                  type="checkbox"
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                  checked={formik.values.isCorporationVehicle}
+                  className="mr-2"
+                />
+                Corporation Vehicle
+              </label>
             </div>
           </div>
         </div>
