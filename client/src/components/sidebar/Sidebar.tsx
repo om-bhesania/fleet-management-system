@@ -17,19 +17,19 @@ const Sidebar = () => {
               className="max-h-[30px]"
             />
           </a>
-          <a
-            href="#"
+          <Link
+            to="/"
             className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded"
           >
             <Home />
             <span>Home</span>
-          </a>
+          </Link>
           <Link
-            to="/test"
+            to="/add-fleet"
             className="flex items-center space-x-2 hover:bg-gray-700 p-2 rounded"
           >
             <Info />
-            <span>Table</span>
+            <span>Add Fleet Details</span>
           </Link>
         </div>
       </div>

@@ -8,6 +8,8 @@ export const api = {
     fleet: {
       add: "api/v1/addfleet",
       getall: "api/v1/getallfleet",
+      delete: "/api/v1/deletefleet/{id}",
+      update: "/api/v1/updatefleet/{id}",
     },
   },
 };

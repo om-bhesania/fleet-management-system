@@ -32,7 +32,7 @@ const validationSchema = Yup.object({
   ),
 });
 
-export const AddFleetForm = () => {
+export const AddFleetForm = ({ vehicle }: any) => {
   const { notify } = useToast();
   const formik = useFormik({
     initialValues: {
@@ -98,8 +98,11 @@ export const AddFleetForm = () => {
   });
 
   return (
-    <div className=" mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h1 className="text-2xl font-semibold mb-6">Add Fleet</h1>
+    <div className="mx-auto">
+      <h1 className="text-2xl font-semibold mb-6">
+        {" "}
+        {vehicle ? "Edit Fleet" : "Add Fleet"}
+      </h1>
       <ToastContainer />
       <form onSubmit={formik.handleSubmit} className="space-y-6">
         <div className="border-b border-gray-300 pb-4">
@@ -635,7 +638,7 @@ export const AddFleetForm = () => {
             type="submit"
             className="px-4 py-2 bg-blue-500 text-white font-semibold rounded-md shadow-sm hover:bg-blue-600"
           >
-            Submit
+            {vehicle ? "Update Fleet" : "Add Fleet"}
           </button>
         </div>
       </form>
