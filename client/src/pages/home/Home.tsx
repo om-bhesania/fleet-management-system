@@ -1,10 +1,11 @@
+import { AddFleetForm } from "../../components/addFleet/AddFleetForm";
 
 const Home = () => {
-    return (
-        <div>
-            <div className="text-5xl text-red-500">This is Home.js</div>
-        </div>
-    );
-}
+  return (
+    <div className="container">
+      <AddFleetForm />
+    </div>
+  );
+};
 
 export default Home;

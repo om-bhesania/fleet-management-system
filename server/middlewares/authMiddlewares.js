@@ -5,7 +5,6 @@ const authMiddleware = async (req, res, next) => {
     if (!token) {
         return res.status(401).json({ msg: "No token provided, authorization denied" });
     }
-
     try {
         const decoded = await verifyJWT(token);
         req.user = decoded;
