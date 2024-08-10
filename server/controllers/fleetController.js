@@ -232,7 +232,7 @@ export const addFleet = async (req, res) => {
 
 /**
  * @swagger
- * /api/v1/fleet:
+ * /api/v1/getallfleet:
  *   get:
  *     summary: Get all fleet vehicles
  *     description: Retrieves a list of all fleet vehicles, excluding those marked as deleted.
@@ -357,7 +357,7 @@ export const getAllFleet = async (req, res) => {
 
 /**
  * @swagger
- * /api/v1/fleet/{id}:
+ * /api/v1/getfleet/{id}:
  *   get:
  *     summary: Get a fleet vehicle by ID
  *     description: Retrieves a fleet vehicle's details based on the provided ID, excluding vehicles marked as deleted.
@@ -510,7 +510,7 @@ export const getFleetById = async (req, res) => {
 
 /**
  * @swagger
- * /api/v1/fleet/{id}:
+ * /api/v1/updatefleet/{id}:
  *   put:
  *     summary: Update a fleet vehicle by ID
  *     description: Updates the details of a fleet vehicle based on the provided ID.
@@ -763,7 +763,7 @@ export const updateFleetById = async (req, res) => {
 
 /**
  * @swagger
- * /api/v1/fleet/{id}:
+ * /api/v1/deletefleet/{id}:
  *   delete:
  *     summary: Post Request Soft delete a fleet vehicle by ID
  *     description: Sets the `isDeleted` flag to `true` for a fleet vehicle based on the provided ID, rather than permanently deleting it.
